@@ -71,6 +71,16 @@
     display: inline-block; font-size: 11.5px; color: #d4af37;
     border: 1px solid #d4af37; border-radius: 20px; padding: 2px 10px; margin-top: 6px;
   }
+  .stop-badge {
+    display: inline-block; font-size: 11.5px; color: #f5d76e;
+    border: 1px solid #f5d76e; border-radius: 20px; padding: 2px 10px; margin-top: 6px; margin-right: 6px;
+  }
+  .stop-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: #b8a67e; }
+  .stop-row input {
+    width: 64px; padding: 6px 8px; border-radius: 8px; border: 1px solid #6b5326;
+    background: #0f0a05; color: #fff; font-size: 15px; font-family: inherit; text-align: center;
+    user-select: text; -webkit-user-select: text;
+  }
   .check {
     flex: 0 0 30px; height: 30px; border-radius: 50%; margin-top: 4px;
     border: 2px solid #6b5326; display: flex; align-items: center; justify-content: center;
@@ -96,7 +106,7 @@
     <div class="kicker">YELLOWSTONE &nbsp;•&nbsp; PREQUEL</div>
     <h1>واچ‌لیست 1883</h1>
   </header>
-  <div class="sub">روی هر قسمت بزن تا تیک بخورد — تیک‌ها روی گوشی ذخیره می‌مانند</div>
+  <div class="sub">روی هر قسمت بزن تا تیک بخورد — تیک‌ها و دقیقه توقف روی گوشی ذخیره می‌مانند</div>
 
   <div class="progress-box">
     <div class="progress-label"><span id="pcount">۰ از ۱۰ قسمت</span><span id="ppercent">۰٪</span></div>
@@ -129,12 +139,17 @@ var EPISODES = [
   { fa: "اینجا بهشت تو نیست", en: "This Is Not Your Heaven", air: "27 Feb 2022", shamsi: "۸ اسفند ۱۴۰۰", runtime: 65, syn: "پایان سفر؛ خانواده داتن به جایی می‌رسد که قرار است خانه‌شان شود — اما نه به بهایی که گمان می‌کردند." }
 ];
 var KEY = "watchlist1883-v1";
+var STOPS_KEY = "watchlist1883-stops-v1";
 var FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
 function faNum(n){ return String(n).replace(/[0-9]/g, function(d){ return FA_DIGITS[d]; }); }
 
 var state = {};
 try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ state = {}; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+
+var stops = {};
+try { stops = JSON.parse(localStorage.getItem(STOPS_KEY) || "{}"); } catch(e){ stops = {}; }
+function saveStops(){ try { localStorage.setItem(STOPS_KEY, JSON.stringify(stops)); } catch(e){} }
 
 var list = document.getElementById("list");
 var rows = [];
@@ -147,9 +162,26 @@ EPISODES.forEach(function(ep, i){
     '<div class="en-title">' + ep.en + '</div>' +
     '<div class="ep-meta">پخش: ' + ep.shamsi + ' &nbsp;•&nbsp; ' + ep.air + ' &nbsp;•&nbsp; ' + faNum(ep.runtime) + ' دقیقه</div>' +
     '<div class="ep-syn">' + ep.syn + '</div>' +
-    '<span class="ep-badge" style="display:' + (state[i] ? "inline-block" : "none") + '">دیده شد</span></div>' +
+    '<div class="stop-row" style="display:' + (state[i] ? "none" : "flex") + '">' +
+    '<label>توقف در دقیقه:</label>' +
+    '<input type="number" inputmode="numeric" min="0" max="' + ep.runtime + '" value="' + (stops[i] != null ? stops[i] : "") + '" placeholder="—">' +
+    '<span>از ' + faNum(ep.runtime) + ' دقیقه</span></div>' +
+    '<span class="ep-badge" style="display:' + (state[i] ? "inline-block" : "none") + '">دیده شد</span>' +
+    '<span class="stop-badge" style="display:' + ((!state[i] && stops[i] != null) ? "inline-block" : "none") + '">توقف در دقیقه ' + faNum(stops[i] || 0) + '</span></div>' +
     '<div class="check">✓</div>';
   row.addEventListener("click", function(){ toggle(i); });
+  var stopRow = row.querySelector(".stop-row");
+  stopRow.addEventListener("click", function(ev){ ev.stopPropagation(); });
+  var stopInput = row.querySelector(".stop-row input");
+  stopInput.addEventListener("click", function(ev){ ev.stopPropagation(); });
+  stopInput.addEventListener("input", function(ev){
+    ev.stopPropagation();
+    var v = parseInt(stopInput.value, 10);
+    if (isNaN(v)) { delete stops[i]; }
+    else { stops[i] = Math.max(0, Math.min(ep.runtime, v)); }
+    saveStops();
+    render();
+  });
   list.appendChild(row);
   rows.push(row);
 });
@@ -157,6 +189,7 @@ EPISODES.forEach(function(ep, i){
 function toggle(i){
   state[i] = !state[i];
   if (!state[i]) delete state[i];
+  if (state[i]) { delete stops[i]; saveStops(); }
   save();
   render();
 }
@@ -177,6 +210,17 @@ function render(){
     rows[i].classList.toggle("next", i === nextIdx);
     var badge = rows[i].querySelector(".ep-badge");
     if (badge) badge.style.display = state[i] ? "inline-block" : "none";
+    var stopRow = rows[i].querySelector(".stop-row");
+    if (stopRow) stopRow.style.display = state[i] ? "none" : "flex";
+    var stopInput = rows[i].querySelector(".stop-row input");
+    if (stopInput && document.activeElement !== stopInput) {
+      stopInput.value = (stops[i] != null ? stops[i] : "");
+    }
+    var stopBadge = rows[i].querySelector(".stop-badge");
+    if (stopBadge) {
+      stopBadge.style.display = (!state[i] && stops[i] != null) ? "inline-block" : "none";
+      if (stops[i] != null) stopBadge.textContent = "توقف در دقیقه " + faNum(stops[i]);
+    }
   });
   var panel = document.getElementById("nextPanel");
   if (nextIdx < 0) {
@@ -185,11 +229,15 @@ function render(){
   } else {
     var ep = EPISODES[nextIdx];
     panel.className = "next-panel";
+    var stopNote = (stops[nextIdx] != null)
+      ? '<div class="next-meta">آخرین بار در دقیقه ' + faNum(stops[nextIdx]) + ' متوقف شدی</div>'
+      : '';
     panel.innerHTML =
       '<div class="next-kicker">قسمت بعدی</div>' +
       '<div class="next-fa">قسمت ' + faNum(nextIdx + 1) + ' از ۱۰ — ' + ep.fa + '</div>' +
       '<div class="next-en">' + ep.en + '</div>' +
       '<div class="next-meta">پخش: ' + ep.shamsi + ' • ' + faNum(ep.runtime) + ' دقیقه</div>' +
+      stopNote +
       '<button class="seen-btn" id="seenBtn">دیدم — تیک قسمت ' + faNum(nextIdx + 1) + ' را بزن</button>';
     document.getElementById("seenBtn").addEventListener("click", function(ev){
       ev.stopPropagation();
@@ -201,6 +249,8 @@ render();
 
 document.getElementById("checkAllBtn").addEventListener("click", function(){
   EPISODES.forEach(function(_, i){ state[i] = true; });
+  stops = {};
+  saveStops();
   save();
   render();
 });
@@ -221,7 +271,8 @@ document.getElementById("resetBtn").addEventListener("click", function(){
     clearTimeout(resetTimer);
     resetArmed = false;
     state = {};
-    try { localStorage.removeItem(KEY); } catch(e){}
+    stops = {};
+    try { localStorage.removeItem(KEY); localStorage.removeItem(STOPS_KEY); } catch(e){}
     btn.classList.remove("armed");
     btn.textContent = "ریست";
     render();
