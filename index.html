@@ -163,11 +163,11 @@ EPISODES.forEach(function(ep, i){
     '<div class="ep-meta">پخش: ' + ep.shamsi + ' &nbsp;•&nbsp; ' + ep.air + ' &nbsp;•&nbsp; ' + faNum(ep.runtime) + ' دقیقه</div>' +
     '<div class="ep-syn">' + ep.syn + '</div>' +
     '<div class="stop-row" style="display:' + (state[i] ? "none" : "flex") + '">' +
-    '<label>توقف در دقیقه:</label>' +
+    '<label>تا دقیقه:</label>' +
     '<input type="number" inputmode="numeric" min="0" max="' + ep.runtime + '" value="' + (stops[i] != null ? stops[i] : "") + '" placeholder="—">' +
     '<span>از ' + faNum(ep.runtime) + ' دقیقه</span></div>' +
     '<span class="ep-badge" style="display:' + (state[i] ? "inline-block" : "none") + '">دیده شد</span>' +
-    '<span class="stop-badge" style="display:' + ((!state[i] && stops[i] != null) ? "inline-block" : "none") + '">توقف در دقیقه ' + faNum(stops[i] || 0) + '</span></div>' +
+    '<span class="stop-badge" style="display:' + ((!state[i] && stops[i] != null) ? "inline-block" : "none") + '">تا دقیقه ' + faNum(stops[i] || 0) + ' تماشا شده</span></div>' +
     '<div class="check">✓</div>';
   row.addEventListener("click", function(){ toggle(i); });
   var stopRow = row.querySelector(".stop-row");
@@ -219,7 +219,7 @@ function render(){
     var stopBadge = rows[i].querySelector(".stop-badge");
     if (stopBadge) {
       stopBadge.style.display = (!state[i] && stops[i] != null) ? "inline-block" : "none";
-      if (stops[i] != null) stopBadge.textContent = "توقف در دقیقه " + faNum(stops[i]);
+      if (stops[i] != null) stopBadge.textContent = "تا دقیقه " + faNum(stops[i]) + " تماشا شده";
     }
   });
   var panel = document.getElementById("nextPanel");
@@ -230,7 +230,7 @@ function render(){
     var ep = EPISODES[nextIdx];
     panel.className = "next-panel";
     var stopNote = (stops[nextIdx] != null)
-      ? '<div class="next-meta">آخرین بار در دقیقه ' + faNum(stops[nextIdx]) + ' متوقف شدی</div>'
+      ? '<div class="next-meta">تا دقیقه ' + faNum(stops[nextIdx]) + ' تماشا شده</div>'
       : '';
     panel.innerHTML =
       '<div class="next-kicker">قسمت بعدی</div>' +
