@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f6efdb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="واچ‌لیست یلواستون">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%231e3d2f'/%3E%3Ctext x='90' y='112' font-family='Georgia,serif' font-size='56' font-weight='bold' fill='%23d4af37' text-anchor='middle'%3EYS%3C/text%3E%3C/svg%3E">
+<title>واچ‌لیست Yellowstone</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, 'Tahoma', sans-serif;
+    background: #f6efdb; color: #1e3d2f;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 28px 18px 60px; }
+  header { text-align: center; margin-bottom: 6px; }
+  header .kicker { color: #2c5a44; font-size: 13px; letter-spacing: 1px; }
+  h1 { font-size: 30px; margin: 6px 0 4px; color: #1e3d2f; }
+  .sub { color: #4a6b5a; font-size: 14px; margin-bottom: 18px; text-align: center; }
+  .progress-box { background: #1e3d2f; border: 1px solid #2c5a44; border-radius: 14px; padding: 14px 16px; margin-bottom: 18px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 14px; color: #d4af37; margin-bottom: 8px; }
+  .progress-sub { font-size: 12.5px; color: #c9d6c9; margin-top: 8px; }
+  .bar { height: 10px; background: #d9cfb0; border-radius: 6px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0%; background: linear-gradient(90deg, #d4af37, #f5d76e); border-radius: 6px; transition: width .35s ease; }
+  .next-panel {
+    background: linear-gradient(135deg, #22483a, #2c5a44);
+    border: 1px solid #d4af37; border-radius: 14px;
+    padding: 16px; margin-bottom: 18px; text-align: center;
+  }
+  .next-panel .next-kicker { color: #f5d76e; font-size: 13px; margin-bottom: 4px; }
+  .next-panel .next-fa { font-size: 20px; font-weight: 700; color: #fff; }
+  .next-panel .next-en { font-size: 13px; color: #f3e9d2; direction: ltr; margin: 2px 0 4px; }
+  .next-panel .next-meta { font-size: 12.5px; color: #f3e9d2; margin-bottom: 12px; }
+  .next-panel .seen-btn {
+    background: #d4af37; color: #1e3d2f; border: none; border-radius: 10px;
+    padding: 11px 22px; font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer;
+  }
+  .next-panel .seen-btn:active { background: #f5d76e; }
+  .next-panel.done-all { background: #1e3d2f; }
+  .next-panel.done-all .next-fa { color: #d4af37; }
+  .ep {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: #1e3d2f; border: 1px solid #2c5a44; border-radius: 14px;
+    padding: 13px 14px; margin-bottom: 10px; cursor: pointer;
+    transition: background .2s, border-color .2s, opacity .2s;
+    user-select: none;
+  }
+  .ep:active { transform: scale(.99); }
+  .ep.done { opacity: .62; border-color: #a8874f; }
+  .ep.done .fa-title { text-decoration: line-through; }
+  .ep.next { border-color: #d4af37; }
+  .num {
+    flex: 0 0 40px; height: 40px; border-radius: 50%;
+    background: #12291f; border: 1.5px solid #d4af37; color: #d4af37;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; margin-top: 2px;
+  }
+  .ep.done .num { background: #d4af37; color: #1e3d2f; }
+  .titles { flex: 1; min-width: 0; }
+  .fa-title { font-size: 16px; font-weight: 700; color: #f7f0dc; margin-bottom: 2px; }
+  .en-title { font-size: 12.5px; color: #c9d6c9; direction: ltr; text-align: right; }
+  .ep-meta { font-size: 12px; color: #c9d6c9; margin-top: 4px; }
+  .ep-syn { font-size: 13px; color: #e8dfc5; line-height: 1.8; margin-top: 6px; }
+  .ep-badge {
+    display: inline-block; font-size: 11.5px; color: #d4af37;
+    border: 1px solid #d4af37; border-radius: 20px; padding: 2px 10px; margin-top: 6px;
+  }
+  .stop-badge {
+    display: inline-block; font-size: 11.5px; color: #f5d76e;
+    border: 1px solid #f5d76e; border-radius: 20px; padding: 2px 10px; margin-top: 6px; margin-right: 6px;
+  }
+  .stop-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: #c9d6c9; }
+  .stop-row input {
+    width: 64px; padding: 6px 8px; border-radius: 8px; border: 1px solid #a8874f;
+    background: #f7f0dc; color: #1e3d2f; font-size: 15px; font-family: inherit; text-align: center;
+    user-select: text; -webkit-user-select: text;
+  }
+  .stop-remain { color: #f5d76e; }
+  .check {
+    flex: 0 0 30px; height: 30px; border-radius: 50%; margin-top: 4px;
+    border: 2px solid #a8874f; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; color: transparent; transition: all .2s;
+  }
+  .ep.done .check { background: #d4af37; border-color: #d4af37; color: #1e3d2f; }
+  .actions { display: flex; gap: 10px; margin-top: 22px; }
+  .actions button {
+    flex: 1; padding: 13px; border-radius: 12px; font-size: 15px;
+    font-family: inherit; cursor: pointer;
+  }
+  .checkall { background: #d4af37; border: none; color: #1e3d2f; font-weight: 700; }
+  .checkall:active { background: #f5d76e; }
+  .reset { background: transparent; border: 1px solid #1e3d2f; color: #1e3d2f; }
+  .reset.armed { background: #a31313; border-color: #a31313; color: #fff; }
+  .hint { text-align: center; color: #4a6b5a; font-size: 12.5px; margin-top: 16px; line-height: 1.9; }
+  .hint b { color: #1e3d2f; }
+  .version { text-align: center; color: #4a6b5a; font-size: 11.5px; margin-top: 12px; }
+
+  .season { display: flex; justify-content: space-between; align-items: center; background: #1e3d2f; color: #f7f0dc; border-radius: 12px; padding: 11px 14px; margin: 18px 0 8px; cursor: pointer; user-select: none; }
+  .season .s-name { font-weight: 700; font-size: 15px; }
+  .season .s-right { display: flex; align-items: center; gap: 10px; }
+  .season .s-count { font-size: 12.5px; color: #d4af37; }
+  .season .s-arrow { color: #d4af37; font-size: 13px; }
+  .season-eps.collapsed { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">PARAMOUNT NETWORK &nbsp;•&nbsp; 2018–2024</div>
+    <h1>واچ‌لیست یلواستون</h1>
+  </header>
+  <div class="sub">۵ فصل، ۵۳ قسمت — روی هر قسمت بزن تا تیک بخورد — تیک‌ها و دقیقه توقف روی گوشی ذخیره می‌مانند</div>
+
+  <div class="progress-box">
+    <div class="progress-label"><span id="pcount">۰ از ۵۳ قسمت</span><span id="ppercent">۰٪</span></div>
+    <div class="bar"><div id="pfill"></div></div>
+    <div class="progress-sub" id="premain"></div>
+  </div>
+
+  <div class="next-panel" id="nextPanel"></div>
+
+  <div id="list"></div>
+
+  <div class="actions">
+    <button class="checkall" id="checkAllBtn">تیک زدن همه</button>
+    <button class="reset" id="resetBtn">ریست</button>
+  </div>
+  <div class="hint">برای گذاشتن روی Home Screen آیفون:<br>این صفحه را در Safari باز کن ← دکمه Share ← <b>Add to Home Screen</b><br>تیک‌ها روی همین گوشی ذخیره می‌شوند و نیازی به لاگین نیست.</div>
+  <div class="version">آخرین به‌روزرسانی: ۸ نوامبر ۲۰۲۶ — یلواستون</div>
+</div>
+
+<script>
+var EPISODES = [
+  { fa: "سپیده‌دم", en: "Daybreak", season: 1, epnum: 1, air: "2018-06-20", shamsi: "۳۰ خرداد ۱۳۹۷", runtime: 120, syn: "جان داتن، صاحب بزرگ‌ترین مزرعه آمریکا در مونتانا، برای دفاع از زمین و خانواده‌اش می‌جنگد." },
+  { fa: "پیام‌آور را بکش", en: "Kill the Messenger", season: 1, epnum: 2, air: "2018-06-27", shamsi: "۶ تیر ۱۳۹۷", runtime: 60, syn: "پس از تیراندازی، داتن‌ها با پیامدهای آن روبه‌رو می‌شوند و جیمی با فرماندار دیدار می‌کند." },
+  { fa: "اسب خوب پیدا نمی‌شود", en: "No Good Horses", season: 1, epnum: 3, air: "2018-07-11", shamsi: "۲۰ تیر ۱۳۹۷", runtime: 60, syn: "سالگرد دردناک خانوادگی؛ کیسی دختربچه‌ای را نجات می‌دهد و رین‌واتر تهدیدی شوم می‌کند." },
+  { fa: "قطار سیاه بلند", en: "The Long Black Train", season: 1, epnum: 4, air: "2018-07-18", shamsi: "۲۷ تیر ۱۳۹۷", runtime: 60, syn: "راز جان فاش می‌شود؛ بت به جنکینز شبی نشان می‌دهد و تیت به دردسر می‌افتد." },
+  { fa: "بازگشت به خانه", en: "Coming Home", season: 1, epnum: 5, air: "2018-07-25", shamsi: "۳ مرداد ۱۳۹۷", runtime: 60, syn: "جان می‌خواهد کیسی و مونیکا نزدیک خانه بمانند؛ بت به دنبال انتقام است." },
+  { fa: "یادآوری", en: "The Remembering", season: 1, epnum: 6, air: "2018-08-01", shamsi: "۱۰ مرداد ۱۳۹۷", runtime: 60, syn: "جان رازی خانوادگی را به مونیکا می‌گوید؛ بت پدرش را بیش از حد تحت فشار می‌گذارد." },
+  { fa: "هیولایی در میان ماست", en: "A Monster Is Among Us", season: 1, epnum: 7, air: "2018-08-08", shamsi: "۱۷ مرداد ۱۳۹۷", runtime: 60, syn: "ریپ با موقعیتی خطرناک روبه‌رو می‌شود و نقشه‌ای برای تنگ کردن حلقه بر جان کشیده می‌شود." },
+  { fa: "از هم پاشیدن: بخش ۱", en: "The Unravelling: Pt. 1", season: 1, epnum: 8, air: "2018-08-15", shamsi: "۲۴ مرداد ۱۳۹۷", runtime: 60, syn: "ریپ با تحقیق کلانتر روبه‌روست؛ آینده سیاسی جیمی زیر سؤال می‌رود و بت به سراغ دارایی دن می‌رود." },
+  { fa: "از هم پاشیدن: بخش ۲", en: "The Unravelling: Pt. 2", season: 1, epnum: 9, air: "2018-08-22", shamsi: "۳۱ مرداد ۱۳۹۷", runtime: 60, syn: "جان متحدان واقعی‌اش را می‌شناسد؛ بت نقشی تازه می‌گیرد و کیسی به خانه برمی‌گردد." },
+  { fa: "غرش", en: "A Thundering", season: 2, epnum: 1, air: "2019-06-19", shamsi: "۲۹ خرداد ۱۳۹۸", runtime: 60, syn: "کیسی در نقش تازه‌اش جا می‌افتد؛ مقاله‌ای مخرب جان را تهدید می‌کند." },
+  { fa: "آغازهای تازه", en: "New Beginnings", season: 2, epnum: 2, air: "2019-06-26", shamsi: "۵ تیر ۱۳۹۸", runtime: 60, syn: "جان در مزرعه تغییراتی می‌دهد؛ بت سرمایه‌گذاری می‌کند و مونیکا سر کار تازه می‌رود." },
+  { fa: "بوی ناامیدی", en: "The Reek of Desperation", season: 2, epnum: 3, air: "2019-07-10", shamsi: "۱۹ تیر ۱۳۹۸", runtime: 60, syn: "رین‌واتر با جنکینز معامله بزرگی می‌کند، اما دشمنان تازه سر راهشان می‌ایستند." },
+  { fa: "فقط شیاطین مانده‌اند", en: "Only Devils Left", season: 2, epnum: 4, air: "2019-07-17", shamsi: "۲۶ تیر ۱۳۹۸", runtime: 60, syn: "دشمنان جان ضربه‌ای مستقیم به یلواستون می‌زنند و او اتحادی غیرمنتظره می‌سازد." },
+  { fa: "لمس دشمنت", en: "Touching Your Enemy", season: 2, epnum: 5, air: "2019-07-24", shamsi: "۲ مرداد ۱۳۹۸", runtime: 60, syn: "جیمی ناامیدانه می‌خواهد اشتباهش را جبران کند؛ کیسی دنبال مدرک می‌گردد." },
+  { fa: "خون پسر", en: "Blood the Boy", season: 2, epnum: 6, air: "2019-07-31", shamsi: "۹ مرداد ۱۳۹۸", runtime: 60, syn: "جان با دو دشمن قدیمی شریک می‌شود؛ جیمی برای حفاظت از مزرعه دست به کاری جدی می‌زند." },
+  { fa: "روز رستاخیز", en: "Resurrection Day", season: 2, epnum: 7, air: "2019-08-07", shamsi: "۱۶ مرداد ۱۳۹۸", runtime: 60, syn: "برادران بک از سرسختی داتن‌ها خسته می‌شوند؛ تیت اولین اسبش را می‌گیرد." },
+  { fa: "پشت سرمان فقط خاکستری", en: "Behind Us Only Grey", season: 2, epnum: 8, air: "2019-08-14", shamsi: "۲۳ مرداد ۱۳۹۸", runtime: 60, syn: "جان و ریپ به دنبال انتقام‌اند؛ جیمی بدهی‌های قدیمی‌اش را صاف می‌کند." },
+  { fa: "تا دوشنبه دشمن", en: "Enemies by Monday", season: 2, epnum: 9, air: "2019-08-21", shamsi: "۳۰ مرداد ۱۳۹۸", runtime: 60, syn: "ریپ به جیمی کمک می‌کند انتقام بگیرد؛ بت به یاری مونیکا می‌رود و جنگ با بک‌ها اوج می‌گیرد." },
+  { fa: "گناهان پدر", en: "Sins of the Father", season: 2, epnum: 10, air: "2019-08-28", shamsi: "۶ شهریور ۱۳۹۸", runtime: 60, syn: "دشمنی بک‌ها و داتن‌ها پایانی خونین دارد؛ کیسی دنبال پسرش می‌گردد." },
+  { fa: "حالا تو سرخ‌پوستی", en: "You're the Indian Now", season: 3, epnum: 1, air: "2020-06-21", shamsi: "۱ تیر ۱۳۹۹", runtime: 60, syn: "پس از بک‌ها، جان مهره‌های سیاسی را جابه‌جا می‌کند و بت با متجاوزی در مزرعه روبه‌رو می‌شود." },
+  { fa: "قطارهای باری و هیولاها", en: "Freight Trains and Monsters", season: 3, epnum: 2, air: "2020-06-28", shamsi: "۸ تیر ۱۳۹۹", runtime: 63, syn: "جیمی سر کار تازه می‌رود؛ بت از نقشه مارکت اکوییتیز باخبر می‌شود." },
+  { fa: "تسلیمی پذیرفتنی", en: "An Acceptable Surrender", season: 3, epnum: 3, air: "2020-07-05", shamsi: "۱۵ تیر ۱۳۹۹", runtime: 60, syn: "جیمی نقشه‌ای پیچیده می‌کشد؛ بت جزئیات پیشنهاد الیس استیل را می‌فهمد." },
+  { fa: "بازگشت به کالی", en: "Going Back to Cali", season: 3, epnum: 4, air: "2020-07-12", shamsi: "۲۲ تیر ۱۳۹۹", runtime: 63, syn: "بت رازی شخصی را با ریپ در میان می‌گذارد؛ جان و پسران با متجاوزان ایالت دیگر روبه‌رو می‌شوند." },
+  { fa: "کابوی‌ها و رؤیاپردازان", en: "Cowboys and Dreamers", season: 3, epnum: 5, air: "2020-07-19", shamsi: "۲۹ تیر ۱۳۹۹", runtime: 60, syn: "دلیل رابطه سمی بت و جیمی فاش می‌شود؛ کیسی به خانواده‌ای نیازمند کمک می‌کند." },
+  { fa: "همه‌چیز برای هیچ", en: "All for Nothing", season: 3, epnum: 6, air: "2020-07-26", shamsi: "۵ مرداد ۱۳۹۹", runtime: 60, syn: "کیسی و مونیکا در جست‌وجوی زنی بومی گمشده‌اند؛ جان از راز بت و جیمی باخبر می‌شود." },
+  { fa: "کتک‌خوردن", en: "The Beating", season: 3, epnum: 7, air: "2020-08-02", shamsi: "۱۲ مرداد ۱۳۹۹", runtime: 60, syn: "جیمی به کشفی بزرگ می‌رسد؛ بت برای آینده‌اش برنامه می‌ریزد." },
+  { fa: "امروز مردی را کشتم", en: "I Killed a Man Today", season: 3, epnum: 8, air: "2020-08-09", shamsi: "۱۹ مرداد ۱۳۹۹", runtime: 60, syn: "بت نبردش با ویلا هیز را ادامه می‌دهد و مونیکا آزمونی سخت را پشت سر می‌گذارد." },
+  { fa: "بدتر از شیطان", en: "Meaner Than Evil", season: 3, epnum: 9, air: "2020-08-16", shamsi: "۲۶ مرداد ۱۳۹۹", runtime: 60, syn: "جیمی با گذشته‌اش روبه‌رو می‌شود؛ ریپ از کیسی درباره مشکلی قدیمی می‌پرسد." },
+  { fa: "جهان بنفش است", en: "The World Is Purple", season: 3, epnum: 10, air: "2020-08-23", shamsi: "۲ شهریور ۱۳۹۹", runtime: 64, syn: "جان با دوستان و دشمنان قدیمی پای میز مذاکره می‌نشیند و هیچ‌چیز مثل قبل نمی‌ماند." },
+  { fa: "نصف پول", en: "Half the Money", season: 4, epnum: 1, air: "2021-11-07", shamsi: "۱۶ آبان ۱۴۰۰", runtime: 73, syn: "حمله هماهنگ به داتن‌ها ادامه دارد؛ همه دنبال مسئول آن‌اند و ریپ به وعده‌اش عمل می‌کند." },
+  { fa: "درد خیالی", en: "Phantom Pain", season: 4, epnum: 2, air: "2021-11-07", shamsi: "۱۶ آبان ۱۴۰۰", runtime: 68, syn: "یلواستون بهبود می‌یابد و نقشه انتقام می‌کشد؛ رین‌واتر پیشنهادی از تازه‌واردی می‌گیرد." },
+  { fa: "فقط تو را می‌بینم", en: "All I See Is You", season: 4, epnum: 3, air: "2021-11-14", shamsi: "۲۳ آبان ۱۴۰۰", runtime: 64, syn: "جان با کمک متحدانی غیرمنتظره دنبال انتقام است؛ بت به کارتر گزینه‌هایش را می‌دهد." },
+  { fa: "بردن یا آموختن", en: "Winning or Learning", season: 4, epnum: 4, air: "2021-11-21", shamsi: "۳۰ آبان ۱۴۰۰", runtime: 66, syn: "جیمی خبری غافلگیرکننده می‌شنود؛ جیمی در راه جا می‌افتد و در خانه کارگری تنش بالا می‌گیرد." },
+  { fa: "زیر پتویی سرخ", en: "Under a Blanket of Red", season: 4, epnum: 5, air: "2021-11-28", shamsi: "۷ آذر ۱۴۰۰", runtime: 64, syn: "جان و کیسی با تازه‌واردانی در شهر روبه‌رو می‌شوند؛ جیمی دنبال اطلاعاتی درباره پدرش است." },
+  { fa: "می‌خواهم جای او باشم", en: "I Want to Be Him", season: 4, epnum: 6, air: "2021-12-05", shamsi: "۱۴ آذر ۱۴۰۰", runtime: 67, syn: "بت با مهمان خانه پدرش روبه‌رو می‌شود؛ جیمی از گرت پاسخ می‌خواهد." },
+  { fa: "گرگ‌ها را نزدیک نگه دار", en: "Keep the Wolves Close", season: 4, epnum: 7, air: "2021-12-12", shamsi: "۲۱ آذر ۱۴۰۰", runtime: 73, syn: "فرماندار پری جان را در موقعیتی دشوار می‌گذارد؛ کارتر برای جلب اعتماد بت تلاش می‌کند." },
+  { fa: "برای ترسو مهربانی نیست", en: "No Kindness for the Coward", season: 4, epnum: 8, air: "2021-12-19", shamsi: "۲۸ آذر ۱۴۰۰", runtime: 64, syn: "تنش با معترضان بالا می‌گیرد، اما بت نقشه‌ای دارد؛ جیمی و امیلی به هم نزدیک‌تر می‌شوند." },
+  { fa: "چیزی به نام عادلانه نیست", en: "No Such Thing as Fair", season: 4, epnum: 9, air: "2021-12-26", shamsi: "۵ دی ۱۴۰۰", runtime: 75, syn: "جان و بت با هم درگیر می‌شوند؛ مدرسه کابویی جیمی تمام می‌شود و کیسی جست‌وجویی تازه آغاز می‌کند." },
+  { fa: "علف در خیابان‌ها و هرزگیاه بر بام‌ها", en: "Grass on the Streets and Weeds on the Rooftops", season: 4, epnum: 10, air: "2022-01-02", shamsi: "۱۲ دی ۱۴۰۰", runtime: 96, syn: "حقیقت‌هایی تازه پیوند خانواده را تهدید می‌کند؛ بت امور خانواده را به دست خودش می‌گیرد." },
+  { fa: "صد سال هیچ است", en: "One Hundred Years Is Nothing", season: 5, epnum: 1, air: "2022-11-13", shamsi: "۲۲ آبان ۱۴۰۱", runtime: 74, syn: "جان به‌عنوان فرماندار مونتانا سوگند می‌خورد و برای حفاظت از یلواستون دست به اقداماتی جسورانه می‌زند." },
+  { fa: "نیش حکمت", en: "The Sting of Wisdom", season: 5, epnum: 2, air: "2022-11-13", shamsi: "۲۲ آبان ۱۴۰۱", runtime: 74, syn: "جان سخنرانی پرشوری می‌کند؛ رقیبی تازه از مارکت اکوییتیز از راه می‌رسد." },
+  { fa: "قدبلندِ جذاب", en: "Tall Drink of Water", season: 5, epnum: 3, air: "2022-11-20", shamsi: "۲۹ آبان ۱۴۰۱", runtime: 71, syn: "بت به سالت‌لیک‌سیتی می‌رود تا کاری ناتمام را تمام کند؛ برای جیمی دامی گذاشته می‌شود." },
+  { fa: "اسب‌ها در بهشت", en: "Horses in Heaven", season: 5, epnum: 4, air: "2022-11-27", shamsi: "۶ آذر ۱۴۰۱", runtime: 74, syn: "جان در کنگره ایالتی تغییراتی سریع می‌دهد؛ دشمنی جیمی و بت به نقطه جوش می‌رسد." },
+  { fa: "تماشا کن که می‌تازند", en: "Watch 'Em Ride Away", season: 5, epnum: 5, air: "2022-12-04", shamsi: "۱۳ آذر ۱۴۰۱", runtime: 65, syn: "جان جلساتش را لغو می‌کند تا با کابوی‌ها گاوها را داغ بزند." },
+  { fa: "سیگار، ویسکی، یک چمنزار و تو", en: "Cigarettes, Whiskey, a Meadow and You", season: 5, epnum: 6, air: "2022-12-11", shamsi: "۲۰ آذر ۱۴۰۱", runtime: 75, syn: "داتن‌ها روزی تقریباً کامل را در داغ‌زدن گاوها می‌گذرانند؛ سارا بیشتر به جیمی نزدیک می‌شود." },
+  { fa: "رؤیا من نیستم", en: "The Dream Is Not Me", season: 5, epnum: 7, air: "2022-12-18", shamsi: "۲۷ آذر ۱۴۰۱", runtime: 81, syn: "جان با مشکلی در گله‌اش روبه‌روست؛ جیمی و سارا نقشه بعدی‌شان را می‌کشند." },
+  { fa: "چاقویی و نه سکه‌ای", en: "A Knife and No Coin", season: 5, epnum: 8, air: "2023-01-01", shamsi: "۱۱ دی ۱۴۰۱", runtime: 67, syn: "جیمی نقشه‌اش را اجرا می‌کند؛ فلاش‌بکی ریشه وفاداری ریپ را نشان می‌دهد." },
+  { fa: "میل، تنها چیزی است که لازم داری", en: "Desire Is All You Need", season: 5, epnum: 9, air: "2024-11-10", shamsi: "۲۰ آبان ۱۴۰۳", runtime: 70, syn: "پس از رویدادی که ایالت مونتانا را تکان می‌دهد، هیچ‌چیز مثل قبل نمی‌ماند." },
+  { fa: "آخرالزمان تغییر", en: "The Apocalypse of Change", season: 5, epnum: 10, air: "2024-11-17", shamsi: "۲۷ آبان ۱۴۰۳", runtime: 69, syn: "بت به درکی هولناک می‌رسد؛ کیسی برای اطلاعات سراغ دوستی قدیمی می‌رود." },
+  { fa: "سه پنجاه‌وسه", en: "Three Fifty-Three", season: 5, epnum: 11, air: "2024-11-24", shamsi: "۴ آذر ۱۴۰۳", runtime: 76, syn: "بت با متحدی غیرمنتظره درباره سرنوشت مزرعه حرف می‌زند؛ کیسی تحقیق را به دست خودش می‌گیرد." },
+  { fa: "شمردن ضربه‌ها", en: "Counting Coup", season: 5, epnum: 12, air: "2024-12-01", shamsi: "۱۱ آذر ۱۴۰۳", runtime: 66, syn: "کیسی حرکتی جسورانه می‌کند؛ ریپ از دوستی در تگزاس کمک می‌خواهد." },
+  { fa: "جهان را ببخش", en: "Give the World Away", season: 5, epnum: 13, air: "2024-12-08", shamsi: "۱۸ آذر ۱۴۰۳", runtime: 85, syn: "جیمی به سراشیبی می‌افتد؛ بت و تراویس معامله‌ای می‌کنند و کیسی ایده‌ای برای آینده مزرعه دارد." },
+  { fa: "زندگی یک وعده است", en: "Life Is a Promise", season: 5, epnum: 14, air: "2024-12-15", shamsi: "۲۵ آذر ۱۴۰۳", runtime: 110, syn: "در حالی که داتن‌ها جان را به خاک می‌سپارند، سرنوشت مزرعه روشن می‌شود." },
+];
+var KEY = "watchlist-yellowstone-v1";
+var STOPS_KEY = "watchlist-yellowstone-stops-v1";
+var FA_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+function faNum(n){ return String(n).replace(/[0-9]/g, function(d){ return FA_DIGITS[d]; }); }
+
+var state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ state = {}; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){} }
+
+var stops = {};
+try { stops = JSON.parse(localStorage.getItem(STOPS_KEY) || "{}"); } catch(e){ stops = {}; }
+function saveStops(){ try { localStorage.setItem(STOPS_KEY, JSON.stringify(stops)); } catch(e){} }
+
+var list = document.getElementById("list");
+var rows = [];
+var seasonBoxes = {};
+var seasonCounts = {};
+var seasonTotals = {};
+EPISODES.forEach(function(ep, i){
+  seasonTotals[ep.season] = (seasonTotals[ep.season] || 0) + 1;
+});
+EPISODES.forEach(function(ep, i){
+  if (!seasonBoxes[ep.season]) {
+    var header = document.createElement("div");
+    header.className = "season";
+    header.innerHTML = '<span class="s-name">فصل ' + faNum(ep.season) + '</span>' +
+      '<span class="s-right"><span class="s-count" id="scount-' + ep.season + '"></span><span class="s-arrow">▼</span></span>';
+    var box = document.createElement("div");
+    box.className = "season-eps";
+    header.addEventListener("click", function(){
+      box.classList.toggle("collapsed");
+      header.querySelector(".s-arrow").textContent = box.classList.contains("collapsed") ? "◀" : "▼";
+    });
+    list.appendChild(header);
+    list.appendChild(box);
+    seasonBoxes[ep.season] = box;
+    seasonCounts[ep.season] = header.querySelector(".s-count");
+  }
+  var row = document.createElement("div");
+  row.className = "ep" + (state[i] ? " done" : "");
+  row.innerHTML =
+    '<div class="num">' + faNum(i+1) + '</div>' +
+    '<div class="titles"><div class="fa-title">' + ep.fa + '</div>' +
+    '<div class="en-title">' + ep.en + '</div>' +
+    '<div class="ep-meta">فصل ' + faNum(ep.season) + ' • قسمت ' + faNum(ep.epnum) + ' &nbsp;•&nbsp; پخش: ' + ep.shamsi + ' &nbsp;•&nbsp; ' + ep.air + ' &nbsp;•&nbsp; ' + faNum(ep.runtime) + ' دقیقه</div>' +
+    '<div class="ep-syn">' + ep.syn + '</div>' +
+    '<div class="stop-row" style="display:' + (state[i] ? "none" : "flex") + '">' +
+    '<label>تا دقیقه:</label>' +
+    '<input type="number" inputmode="numeric" min="0" max="' + ep.runtime + '" value="' + (stops[i] != null ? stops[i] : "") + '" placeholder="—">' +
+    '<span>از ' + faNum(ep.runtime) + ' دقیقه</span>' +
+    '<span class="stop-remain" style="display:' + ((stops[i] != null) ? "inline" : "none") + '">• ' + faNum(ep.runtime - (stops[i] || 0)) + ' دقیقه مانده</span></div>' +
+    '<span class="ep-badge" style="display:' + (state[i] ? "inline-block" : "none") + '">دیده شد</span>' +
+    '<span class="stop-badge" style="display:' + ((!state[i] && stops[i] != null) ? "inline-block" : "none") + '">تا دقیقه ' + faNum(stops[i] || 0) + ' تماشا شده</span></div>' +
+    '<div class="check">✓</div>';
+  row.addEventListener("click", function(){ toggle(i); });
+  var stopRow = row.querySelector(".stop-row");
+  stopRow.addEventListener("click", function(ev){ ev.stopPropagation(); });
+  var stopInput = row.querySelector(".stop-row input");
+  stopInput.addEventListener("click", function(ev){ ev.stopPropagation(); });
+  stopInput.addEventListener("input", function(ev){
+    ev.stopPropagation();
+    var v = parseInt(stopInput.value, 10);
+    if (isNaN(v)) { delete stops[i]; }
+    else { stops[i] = Math.max(0, Math.min(ep.runtime, v)); }
+    saveStops();
+    render();
+  });
+  seasonBoxes[ep.season].appendChild(row);
+  rows.push(row);
+});
+
+function toggle(i){
+  state[i] = !state[i];
+  if (!state[i]) delete state[i];
+  if (state[i]) { delete stops[i]; saveStops(); }
+  save();
+  render();
+}
+function render(){
+  var done = 0, remainMin = 0, nextIdx = -1;
+  var seasonDone = {};
+  EPISODES.forEach(function(ep, i){
+    if (state[i]) { done++; seasonDone[ep.season] = (seasonDone[ep.season] || 0) + 1; }
+    else { remainMin += ep.runtime; if (nextIdx < 0) nextIdx = i; }
+  });
+  document.getElementById("pcount").textContent = faNum(done) + " از " + faNum(EPISODES.length) + " قسمت دیده شده";
+  document.getElementById("ppercent").textContent = faNum(Math.round(done / EPISODES.length * 100)) + "٪";
+  document.getElementById("pfill").style.width = (done / EPISODES.length * 100) + "%";
+  document.getElementById("premain").textContent =
+    done === EPISODES.length ? "همه قسمت‌ها دیده شد — سفر کامل شد!" :
+    faNum(EPISODES.length - done) + " قسمت مانده • " + faNum(remainMin) + " دقیقه باقی‌مانده";
+  Object.keys(seasonCounts).forEach(function(s){
+    seasonCounts[s].textContent = faNum(seasonDone[s] || 0) + " از " + faNum(seasonTotals[s]) + " دیده شده";
+  });
+  EPISODES.forEach(function(ep, i){
+    rows[i].classList.toggle("done", !!state[i]);
+    rows[i].classList.toggle("next", i === nextIdx);
+    var badge = rows[i].querySelector(".ep-badge");
+    if (badge) badge.style.display = state[i] ? "inline-block" : "none";
+    var stopRow = rows[i].querySelector(".stop-row");
+    if (stopRow) stopRow.style.display = state[i] ? "none" : "flex";
+    var stopInput = rows[i].querySelector(".stop-row input");
+    if (stopInput && document.activeElement !== stopInput) {
+      stopInput.value = (stops[i] != null ? stops[i] : "");
+    }
+    var stopBadge = rows[i].querySelector(".stop-badge");
+    if (stopBadge) {
+      stopBadge.style.display = (!state[i] && stops[i] != null) ? "inline-block" : "none";
+      if (stops[i] != null) stopBadge.textContent = "تا دقیقه " + faNum(stops[i]) + " تماشا شده";
+    }
+    var stopRemain = rows[i].querySelector(".stop-remain");
+    if (stopRemain) {
+      stopRemain.style.display = (!state[i] && stops[i] != null) ? "inline" : "none";
+      if (stops[i] != null) stopRemain.textContent = "• " + faNum(ep.runtime - stops[i]) + " دقیقه مانده";
+    }
+  });
+  var panel = document.getElementById("nextPanel");
+  if (nextIdx < 0) {
+    panel.className = "next-panel done-all";
+    panel.innerHTML = '<div class="next-kicker">سفر کامل شد</div><div class="next-fa">همه ۵۳ قسمت دیده شد</div><div class="next-meta">می‌توانی با دکمه ریست از اول شروع کنی.</div>';
+  } else {
+    var ep = EPISODES[nextIdx];
+    panel.className = "next-panel";
+    var stopNote = (stops[nextIdx] != null)
+      ? '<div class="next-meta">تا دقیقه ' + faNum(stops[nextIdx]) + ' تماشا شده</div>'
+      : '';
+    panel.innerHTML =
+      '<div class="next-kicker">قسمت بعدی</div>' +
+      '<div class="next-fa">قسمت ' + faNum(nextIdx + 1) + ' از ۵۳ — ' + ep.fa + '</div>' +
+      '<div class="next-en">' + ep.en + '</div>' +
+      '<div class="next-meta">فصل ' + faNum(ep.season) + ' • قسمت ' + faNum(ep.epnum) + ' • پخش: ' + ep.shamsi + ' • ' + faNum(ep.runtime) + ' دقیقه</div>' +
+      stopNote +
+      '<button class="seen-btn" id="seenBtn">دیدم — تیک قسمت ' + faNum(nextIdx + 1) + ' را بزن</button>';
+    document.getElementById("seenBtn").addEventListener("click", function(ev){
+      ev.stopPropagation();
+      toggle(nextIdx);
+    });
+  }
+}
+render();
+
+document.getElementById("checkAllBtn").addEventListener("click", function(){
+  EPISODES.forEach(function(_, i){ state[i] = true; });
+  stops = {};
+  saveStops();
+  save();
+  render();
+});
+
+var resetArmed = false, resetTimer = null;
+document.getElementById("resetBtn").addEventListener("click", function(){
+  var btn = document.getElementById("resetBtn");
+  if (!resetArmed) {
+    resetArmed = true;
+    btn.classList.add("armed");
+    btn.textContent = "مطمئنی؟ دوباره بزن";
+    resetTimer = setTimeout(function(){
+      resetArmed = false;
+      btn.classList.remove("armed");
+      btn.textContent = "ریست";
+    }, 4000);
+  } else {
+    clearTimeout(resetTimer);
+    resetArmed = false;
+    state = {};
+    stops = {};
+    try { localStorage.removeItem(KEY); localStorage.removeItem(STOPS_KEY); } catch(e){}
+    btn.classList.remove("armed");
+    btn.textContent = "ریست";
+    render();
+  }
+});
+</script>
+</body>
+</html>
